@@ -1,5 +1,5 @@
 const express = require("express");
-const mongoose = require("mpngoose");
+const mongoose = require("mongoose");
 const exphbs = require("express-handlebars");
 
 const PORT = process.env.PORT || 3000;
