@@ -10,16 +10,16 @@ const scrape = () => {
 
         $.apply("div.css-1yjtett").each((i, element) => {
 
-            const head = $(element)
+            const head = $(this)
             .children("h2")
             .text()
             .trim();
 
-            const url = $(element)
+            const url = $(this)
             .children("a")
             .attr("href");
 
-            const sum = $(element)
+            const sum = $(this)
             .children("p")
             .text()
             .trim();
