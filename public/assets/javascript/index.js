@@ -86,25 +86,26 @@ $(document).ready(() => {
             method: "PUT",
             url: "/api/headlines/" + articleToSave._id,
             data: articleToSave
-        })
-            .then(data => {
-                if (data.saved) {
-                    start();
-                }
-            });
+        }).then(data => {
+            console.log(data)
+            if (data) {
+                location.reload();
+            }
+        });
     }
 
     function scrapeArticle() {
         $.get("/api/fetch").then(data => {
-            start();
-            bootbox.alert($("<h3 class='text-center m-top-80'>").text(data.message));
+            console.log(data)
+            window.location.href = "/";
         });
     }
 
     function clearArticle() {
-        $.get("api/clear").then(() => {
+        $.get("api/clear").then(data => {
+            console.log(data)
             articleContainer.empty();
-            start();
+            location.reload();
         });
     }
 

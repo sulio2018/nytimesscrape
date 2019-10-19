@@ -106,12 +106,11 @@ $(document).ready(() => {
         $.ajax({
             method: "DELETE",
             url: "/api/headlines/" + articleToDelete._id
-        })
-            .then(() => {
-                if (data.ok) {
-                    start();
-                }
-            });
+        }).then(() => {
+            if (data) {
+                window.load = "/saved"
+            }
+        });
     }
 
     // Display notes
@@ -121,14 +120,16 @@ $(document).ready(() => {
             .data();
 
         $.get("api/notes/" + currentArticle._id).then(data => {
-            const modalText = 
+            console.log(data)
+
+            const modalText =
                 $("<div class='container-fluid text-center'>").append(
-                $("<h4>").text("Notes For Article: " + currentArticle._id),
-                $("<hr>"),
-                $("<ul class='list-group note-container'>"),
-                $("<textarea placeholder='New Note' rows='4' cols='60'>"),
-                $("<button class='btn btn-success save'>Save Note</button>")
-            );
+                    $("<h4>").text("Notes For Article: " + currentArticle._id),
+                    $("<hr>"),
+                    $("<ul class='list-group note-container'>"),
+                    $("<textarea placeholder='New Note' rows='4' cols='60'>"),
+                    $("<button class='btn btn-success save'>Save Note</button>")
+                );
 
             bootbox.dialog({
                 message: modalText,
@@ -164,8 +165,7 @@ $(document).ready(() => {
         $.ajax({
             method: "DELETE",
             url: "/api/notes/" + noteToDelete,
-        })
-        .then(() => {
+        }).then(() => {
             bootbox.hideAll();
         });
     }
@@ -173,7 +173,7 @@ $(document).ready(() => {
     function clearArticle() {
         $.get("api/clear").then(() => {
             articleContainer.empty();
-            start();
+            location.reload();
         });
     }
 
