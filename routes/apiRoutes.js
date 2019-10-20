@@ -9,25 +9,25 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 module.exports = function (app) {
 
     // Route to Home Page
-    app.get("/", (req, res) => {
-        db.Article.find({ saved: false }, (err, data) => {
-            res.render("home", { home: true, article: data });
+    app.get('/', function(req, res) {
+        db.Article.find({ saved: false }, function(err, data) {
+            res.render('home', { home: true, article: data });
         })
     });
 
     // Route to Saved Page
-    app.get("/saved'", (req, res) => {
+    app.get('/saved', function(req, res) {
         db.Article.find({ saved: true }), (err, data) => {
             res.render("saved", { home: false, article: data });
         }
     });
 
     // Save article to db
-    app.put("/api/headlines/:id", (req, res) => {
-        let saved = req.body.saved == "true"
+    app.put("/api/headlines/:id", function(req, res) {
+        var saved = req.body.saved == 'true'
 
         if (saved) {
-            db.Article.updateOne({ _id: req.body._id }, { $set: { saved: true } }, (err, res) => {
+            db.Article.updateOne({ _id: req.body._id }, { $set: { saved: true } }, function(err, result) {
                 if (err) {
                     console.log(err)
                 }
@@ -39,8 +39,9 @@ module.exports = function (app) {
     });
 
     // Delete article from db
-    app.delete("/api/headlines/:id", (req, res) => {
-        db.Article.deleteOne({ _id: req.params.id}, (err, res) => {
+    app.delete("/api/headlines/:id", function(req, res) {
+        console.log('reqbody:' + JSON.stringify(req.params.id))
+        db.Article.deleteOne({ _id: req.params.id}, function(err, result) {
             if (err) {
                 console.log(err)
             }
@@ -51,31 +52,34 @@ module.exports = function (app) {
     });
 
     // SCRAPE ARTICLES
-    app.get("/api/fetch", (req, res) => {
+    app.get("/api/fetch", function(req, res) {
 
-        axios.get("https://nytimes.com/").then(response => {
-            const $ = cheerio.load((i, element) => {
+        axios.get("https://www.nytimes.com/").then(function(response) {
+            const $ = cheerio.load(response.data);
 
-                let result = {};
+            $("article").each(function(i, element) {
+
+                var result = {};
                 result.headline = $(element).find("h2").text().trim();
                 result.url = "https://www.nytimes.com" + $(element).find("a").attr("href");
                 result.summary = $(element).find("p").text().trim();
 
                 if (result.headline !== '' && result.summary !== '') {
-                    db.Article.findOne({ headline: result.headline}, (req, data) => {
+                    db.Article.findOne({ headline: result.headline}, function(err, data) {
 
                         if (err) {
                             console.log(err)
                         }
                         else {
                             if (data === null) {
-                                db.Article.create(result).then(dbArticle => {
+                                db.Article.create(result).then(function(dbArticle) {
                                     console.log(dbArticle)
                                 })
-                                .catch(err => {
+                                .catch(function(err) {
                                     console.log(err)
                                 });
                             }
+                            console.log(data)
                         }
                     });
                 }
@@ -86,36 +90,40 @@ module.exports = function (app) {
     });
 
     // Get notes for articles
-    app.get("/api/notes/:id", (req, res) => {
+    app.get("/api/notes/:id", function(req, res) {
         db.Article.findOne({ _id: req.params.id})
         .populate("note")
-        .then(dbArticle => {
+        .then(function(dbArticle) {
+            console.log(dbArticle.note)
             res.json(dbArticle.note)
         })
-        .catch(err => {
+        .catch(function(err) {
             res.json(err)
         })
     });
 
     // Add notes to an article
-    app.post("/api/notes", (req, res) => {
-        db.Note.create({ noteText: req.body.noteText })
-        .then(dbNote => {
-            return db.Article.findOneAndUpdate({ _id: req.body._headline},
+    app.post("/api/notes", function(req, res) {
+        console.log(req.body)
+        db.Note.create({ noteText: req.body.noteText })      
+        .then(function(dbNote) {
+            return db.Article.findOneAndUpdate({ _id: req.body._headlineId},
                 { $push: {note: dbNote._id } },
                 { new: true })
         })
-        .then(dbArticle => {
+        .then(function(dbArticle) {
+            console.log('dbArticle: '+ dbArticle)
             res.json(dbArticle)
         })
-        .catch(err => {
+        .catch(function(err) {
             res.json(err);
         })
     });
 
     // Delete note
-    app.delete("/api/notes/:id", (req, res) => {
-        db.Note.deleteOne({ _id: req.params.id }, (err, result) => {
+    app.delete("/api/notes/:id", function(req, res) {
+        console.log('reqbody:' + JSON.stringify(req.params.id))
+        db.Note.deleteOne({ _id: req.params.id }, function(err, result) {
             if (err) {
                 console.log(err)
             }
@@ -126,8 +134,9 @@ module.exports = function (app) {
     });
 
     // Clear everything from db
-    app.get("/api/clear", (req, res) => {
-        db.Article.deleteMany({}, (req,result) => {
+    app.get("/api/clear", function(req, res) {
+        console.log(req.body)
+        db.Article.deleteMany({}, function(err, result) {
             if (err) {
                 console.log(err)
             }

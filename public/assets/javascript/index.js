@@ -1,12 +1,12 @@
-$(document).ready(() => {
-    const articleContainer = $(".article-container");
+$(document).ready(function() {
+    var articleContainer = $(".article-container");
     $(document).on("click", ".btn-save", saveArticle);
     $(document).on("click", ".scrape-new", scrapeArticle);
     $(".clear").on("click", clearArticle);
 
     // Handle headlines
     function start() {
-        $.get("/api/headlines?saved=false").then(data => {
+        $.get("/api/headlines?saved=false").then(function(data) {
             articleContainer.empty();
 
             if (data && data.length) {
@@ -20,9 +20,9 @@ $(document).ready(() => {
 
     // Append articles
     function renderArticles(articles) {
-        const articleInfo = [];
+        var articleInfo = [];
 
-        for (let i = 0; i < articles.length; i++) {
+        for (var i = 0; i < articles.length; i++) {
             articleInfo.push(createCard(articles[i]));
         }
 
@@ -31,8 +31,8 @@ $(document).ready(() => {
 
     // Create article card
     function createCard(article) {
-        const card = $("<div class='card'>");
-        const cardHeader = $("<div class='card-header'>").append(
+        var card = $("<div class='card'>");
+        var cardHeader = $("<div class='card-header'>").append(
             $("<h3>").append(
                 $("<a class='article-link' target='_blank' rel='noopener noreferrer'>")
                     .attr("href", article.url)
@@ -41,7 +41,7 @@ $(document).ready(() => {
             )
         );
 
-        const cardBody = $("<div class='card-body'>").text(article.summary);
+        var cardBody = $("<div class='card-body'>").text(article.summary);
 
         card.append(cardHeader, cardBody);
 
@@ -51,7 +51,7 @@ $(document).ready(() => {
     }
 
     function renderEmpty() {
-        const emptyAll = $(
+        var emptyAll = $(
             [
                 "<div class='alert alert-warning text-center'>",
                 "<h4>You don't have any new articles.</h4>",
@@ -72,7 +72,7 @@ $(document).ready(() => {
     }
 
     function saveArticle() {
-        const articleToSave = $(this)
+        var articleToSave = $(this)
             .parents(".card")
             .data();
 
@@ -81,12 +81,13 @@ $(document).ready(() => {
             .remove();
 
         articleToSave.saved = true;
+        console.log(articleToSave)
 
         $.ajax({
             method: "PUT",
             url: "/api/headlines/" + articleToSave._id,
             data: articleToSave
-        }).then(data => {
+        }).then(function(data) {
             console.log(data)
             if (data) {
                 location.reload();
@@ -95,14 +96,14 @@ $(document).ready(() => {
     }
 
     function scrapeArticle() {
-        $.get("/api/fetch").then(data => {
+        $.get("/api/fetch").then(function(data) {
             console.log(data)
             window.location.href = "/";
         });
     }
 
     function clearArticle() {
-        $.get("api/clear").then(data => {
+        $.get("api/clear").then(function(data) {
             console.log(data)
             articleContainer.empty();
             location.reload();

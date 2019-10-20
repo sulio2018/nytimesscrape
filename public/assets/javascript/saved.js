@@ -1,5 +1,5 @@
-$(document).ready(() => {
-    const articleContainer = $(".article-container");
+$(document).ready(function() {
+    var articleContainer = $(".article-container");
     $(document).on("click", ".btn.delete", deleteArticle);
     $(document).on("click", ".btn.notes", articleNotes);
     $(document).on("click", ".btn.save", saveNote);
@@ -8,7 +8,7 @@ $(document).ready(() => {
 
 
     function start() {
-        $.get("/api/headlines?saved=true").then(data => {
+        $.get("/api/headlines?saved=true").then(function(data) {
             articleContainer.empty();
 
             if (data && data.length) {
@@ -21,9 +21,9 @@ $(document).ready(() => {
     }
 
     function renderArticles(articles) {
-        const articleInfo = [];
+        var articleInfo = [];
 
-        for (let i = 0; i < articles.length; i++) {
+        for (var i = 0; i < articles.length; i++) {
             articleInfo.push(createCard(articles[i]));
         }
 
@@ -31,8 +31,8 @@ $(document).ready(() => {
     }
 
     function createCard(article) {
-        const card = $("<div class='card'>");
-        const cardHeader = $("<div class='card-header'>").append(
+        var card = $("<div class='card'>");
+        var cardHeader = $("<div class='card-header'>").append(
             $("<h3>").append(
                 $("<a class='article-link' target='_blank' rel='noopener noreferrer'>")
                     .attr("href", article.url)
@@ -42,7 +42,7 @@ $(document).ready(() => {
             )
         );
 
-        const cardBody = $("<div class='card-body'>").text(article.summary);
+        var cardBody = $("<div class='card-body'>").text(article.summary);
 
         card.append(cardHeader, cardBody);
 
@@ -52,7 +52,7 @@ $(document).ready(() => {
     }
 
     function renderEmpty() {
-        const emptyAll = $(
+        var emptyAll = $(
             [
                 "<div class='alert alert-warning text-center'>",
                 "<h4>You don't have any saved articles.</h4>",
@@ -73,15 +73,15 @@ $(document).ready(() => {
 
     // Handle notes
     function notesList(data) {
-        const notesToRender = [];
-        const currentNote;
+        var notesToRender = [];
+        var currentNote;
 
         if (!data.notes.length) {
             currentNote = $("<li class='list-group-item'>No notes for this article yet.</li>");
             notesToRender.push(currentNote);
         }
         else {
-            for (let i = 0; i < data.notes.length; i++) {
+            for (var i = 0; i < data.notes.length; i++) {
                 currentNote = $("<li class='list-group-item note'>")
                     .text(data.notes[i].noteText)
                     .append($("<button class='btn btn-danger note-delete'>x</button>"));
@@ -95,7 +95,7 @@ $(document).ready(() => {
     }
 
     function deleteArticle() {
-        const articleToDelete = $(this)
+        var articleToDelete = $(this)
             .parents(".card")
             .data();
 
@@ -106,7 +106,7 @@ $(document).ready(() => {
         $.ajax({
             method: "DELETE",
             url: "/api/headlines/" + articleToDelete._id
-        }).then(() => {
+        }).then(function() {
             if (data) {
                 window.load = "/saved"
             }
@@ -115,14 +115,15 @@ $(document).ready(() => {
 
     // Display notes
     function articleNotes(event) {
-        const currentArticle = $(this)
+        var currentArticle = $(this)
             .parents(".card")
             .data();
+            console.log(currentArticle)
 
-        $.get("api/notes/" + currentArticle._id).then(data => {
+        $.get("/api/notes/" + currentArticle._id).then(function(data) {
             console.log(data)
 
-            const modalText =
+            var modalText =
                 $("<div class='container-fluid text-center'>").append(
                     $("<h4>").text("Notes For Article: " + currentArticle._id),
                     $("<hr>"),
@@ -130,16 +131,18 @@ $(document).ready(() => {
                     $("<textarea placeholder='New Note' rows='4' cols='60'>"),
                     $("<button class='btn btn-success save'>Save Note</button>")
                 );
+                console.log(modalText)
 
             bootbox.dialog({
                 message: modalText,
                 closeButton: true
             });
 
-            const noteData = {
+            var noteData = {
                 _id: currentArticle._id,
                 notes: data || []
             };
+            console.log('noteData:' + JSON.stringify(noteData))
 
             $(".btn.save").data("article", noteData);
 
@@ -148,30 +151,30 @@ $(document).ready(() => {
     }
 
     function saveNote() {
-        const noteData;
-        const newNote = $(".bootbox-body textarea").val().trim();
+        var noteData;
+        var newNote = $(".bootbox-body textarea").val().trim();
 
         if (newNote) {
             noteData = { _headlineId: $(this).data("article")._id, noteText: newNote };
-            $.post("/api/notes/", noteData).then(() => {
+            $.post("/api/notes", noteData).then(function() {
                 bootbox.hideAll();
             });
         }
     }
 
     function deleteNote() {
-        const noteToDelete = $(this).data("_id");
+        var noteToDelete = $(this).data("_id");
 
         $.ajax({
             method: "DELETE",
             url: "/api/notes/" + noteToDelete,
-        }).then(() => {
+        }).then(function() {
             bootbox.hideAll();
         });
     }
 
     function clearArticle() {
-        $.get("api/clear").then(() => {
+        $.get("api/clear").then(function(data) {
             articleContainer.empty();
             location.reload();
         });
