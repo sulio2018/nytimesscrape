@@ -1,6 +1,6 @@
 $(document).ready(function() {
     var articleContainer = $(".article-container");
-    $(document).on("click", ".btn-save", saveArticle);
+    $(document).on("click", ".btn.save", saveArticle);
     $(document).on("click", ".scrape-new", scrapeArticle);
     $(".clear").on("click", clearArticle);
 
